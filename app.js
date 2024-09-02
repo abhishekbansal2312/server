@@ -4,6 +4,7 @@ require("dotenv").config();
 const cors = require("cors");
 const morgan = require("morgan");
 
+
 const app = express();
 
 const MongoDB = process.env.MONGO_URL;
@@ -29,9 +30,11 @@ app.get("/", (req, res) => {
 
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const membersRoute = require("./routes/membersRoute");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/members", membersRoute);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
