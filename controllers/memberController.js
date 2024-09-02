@@ -16,8 +16,16 @@ exports.getAllMembers = async (req, res) => {
 
 // Add a new member (Registration)
 exports.addMember = async (req, res) => {
-  const { name, email, studentId, password, picture, description, hobbies } =
-    req.body;
+  const {
+    name,
+    email,
+    studentId,
+    password,
+    picture,
+    description,
+    hobbies,
+    phoneNumber,
+  } = req.body;
 
   try {
     const existingMember = await Member.findOne({ email });
@@ -35,6 +43,7 @@ exports.addMember = async (req, res) => {
       picture,
       description,
       hobbies,
+      phoneNumber,
     });
 
     await newMember.save();
@@ -91,13 +100,30 @@ exports.getMember = async (req, res) => {
 // Update a member by ID
 exports.updateMember = async (req, res) => {
   const { id } = req.params;
-  const { name, email, studentId, picture, description, hobbies, isActive } =
-    req.body;
+  const {
+    name,
+    email,
+    studentId,
+    picture,
+    description,
+    hobbies,
+    isActive,
+    phoneNumber,
+  } = req.body;
 
   try {
     const updatedMember = await Member.findByIdAndUpdate(
       id,
-      { name, email, studentId, picture, description, hobbies, isActive },
+      {
+        name,
+        email,
+        studentId,
+        picture,
+        description,
+        hobbies,
+        isActive,
+        phoneNumber,
+      },
       { new: true, runValidators: true } // Return the updated document
     ).select("-password"); // Exclude password field
 
@@ -130,4 +156,3 @@ exports.deleteMember = async (req, res) => {
       .json({ message: "Error deleting member", error: error.message });
   }
 };
-

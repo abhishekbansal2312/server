@@ -38,6 +38,9 @@ const memberSchema = new mongoose.Schema({
     type: Boolean, // Active status of the member
     default: true,
   },
+  phoneNumber: {
+    type: Number, // Phone number of the member
+  },
 });
 
 // Hash the password before saving the member
