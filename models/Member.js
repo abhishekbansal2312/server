@@ -17,10 +17,6 @@ const memberSchema = new mongoose.Schema({
     required: true,
     unique: true, // Student ID must be unique
   },
-  password: {
-    type: String,
-    required: true, // Password is required
-  },
   picture: {
     type: String, // Store the URL of the picture
   },

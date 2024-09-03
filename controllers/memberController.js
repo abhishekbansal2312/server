@@ -5,7 +5,7 @@ const Member = require("../models/Member");
 // Get all members
 exports.getAllMembers = async (req, res) => {
   try {
-    const members = await Member.find().select("-password"); // Exclude password field when fetching members
+    const members = await Member.find()
     res.status(200).json(members);
   } catch (error) {
     res
@@ -20,7 +20,6 @@ exports.addMember = async (req, res) => {
     name,
     email,
     studentId,
-    password,
     picture,
     description,
     hobbies,
@@ -39,7 +38,6 @@ exports.addMember = async (req, res) => {
       name,
       email,
       studentId,
-      password, // The password will be hashed automatically before saving
       picture,
       description,
       hobbies,
@@ -53,38 +51,14 @@ exports.addMember = async (req, res) => {
       .status(500)
       .json({ message: "Error adding member", error: error.message });
   }
-};
-
-// Login a member
-exports.loginMember = async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const member = await Member.findOne({ email });
-    if (!member) {
-      return res.status(404).json({ message: "Member not found" });
-    }
-
-    const isMatch = await member.comparePassword(password); // Compare the provided password with the stored hashed password
-    if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
-    }
-
-    // Generate a token or perform some other authentication steps here
-    res.status(200).json({ message: "Login successful" });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error logging in member", error: error.message });
-  }
-};
+};522
 
 // Get a specific member by ID
 exports.getMember = async (req, res) => {
   const { id } = req.params;
 
   try {
-    const member = await Member.findById(id).select("-password"); // Exclude password field
+    const member = await Member.findById(id)
     if (!member) {
       return res.status(404).json({ message: "Member not found" });
     }

@@ -13,7 +13,13 @@ exports.registerUser = async (req, res) => {
     }
 
     // Create the user directly; password will be hashed by the pre-save middleware
-    user = await User.create({ studentId, name, email, password });
+    user = await User.create({
+      studentId,
+      name,
+      email,
+      password,
+      isAdmin: false,
+    });
 
     res.status(201).json({ message: "User registered successfully", user });
   } catch (error) {
