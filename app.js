@@ -31,12 +31,12 @@ app.get("/", (req, res) => {
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const membersRoute = require("./routes/membersRoute");
-// const contactRoute = require("./routes/contactRoute");
+const contactRoute = require("./routes/contactRoute");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/members", membersRoute);
-// app.use("/api/contact", contactRoute); 
+app.use("/api/contact", contactRoute); 
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
