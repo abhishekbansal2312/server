@@ -9,7 +9,7 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 
 // Logout route (GET request)
-router.get("/logout", (req, res) => {
+router.delete("/logout", (req, res) => {
   res.clearCookie("authtoken", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",

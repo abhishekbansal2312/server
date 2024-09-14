@@ -1,6 +1,4 @@
-// models/Member.js
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
 
 const memberSchema = new mongoose.Schema({
   name: {
@@ -35,29 +33,9 @@ const memberSchema = new mongoose.Schema({
     default: true,
   },
   phoneNumber: {
-    type: Number, // Phone number of the member
+    type: String, // Phone number should be a string to handle leading zeros, etc.
   },
 });
-
-// Hash the password before saving the member
-memberSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    return next();
-  }
-
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
-
-// Method to compare provided password with hashed password
-memberSchema.methods.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
-};
 
 const Member = mongoose.model("Member", memberSchema);
 

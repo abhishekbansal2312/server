@@ -1,11 +1,10 @@
-// controllers/memberController.js
-
 const Member = require("../models/Member");
+const mongoose = require('mongoose');
 
 // Get all members
 exports.getAllMembers = async (req, res) => {
   try {
-    const members = await Member.find()
+    const members = await Member.find();
     res.status(200).json(members);
   } catch (error) {
     res
@@ -16,22 +15,20 @@ exports.getAllMembers = async (req, res) => {
 
 // Add a new member (Registration)
 exports.addMember = async (req, res) => {
-  const {
-    name,
-    email,
-    studentId,
-    picture,
-    description,
-    hobbies,
-    phoneNumber,
-  } = req.body;
+  const { name, email, studentId, picture, description, hobbies, phoneNumber } =
+    req.body;
 
   try {
-    const existingMember = await Member.findOne({ email });
+    // Check if the member already exists by email or studentId
+    const existingMember = await Member.findOne({
+      $or: [{ email }, { studentId }],
+    });
     if (existingMember) {
       return res
         .status(400)
-        .json({ message: "Member with this email already exists" });
+        .json({
+          message: "Member with this email or student ID already exists",
+        });
     }
 
     const newMember = new Member({
@@ -45,29 +42,34 @@ exports.addMember = async (req, res) => {
     });
 
     await newMember.save();
-    res.status(201).json({ message: "Member registered successfully" });
+    res
+      .status(201)
+      .json({ message: "Member registered successfully", member: newMember });
   } catch (error) {
     res
       .status(500)
       .json({ message: "Error adding member", error: error.message });
   }
-};522
+};
 
 // Get a specific member by ID
 exports.getMember = async (req, res) => {
   const { id } = req.params;
 
+  // Check if id is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid member ID" });
+  }
+
   try {
-    const member = await Member.findById(id)
+    const member = await Member.findById(id);
     if (!member) {
       return res.status(404).json({ message: "Member not found" });
     }
 
     res.status(200).json(member);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching member", error: error.message });
+    res.status(500).json({ message: "Error fetching member", error: error.message });
   }
 };
 
@@ -86,6 +88,17 @@ exports.updateMember = async (req, res) => {
   } = req.body;
 
   try {
+    // Check if the email or studentId already exists (excluding the current member)
+    const existingMember = await Member.findOne({
+      $or: [{ email }, { studentId }],
+      _id: { $ne: id },
+    });
+    if (existingMember) {
+      return res
+        .status(400)
+        .json({ message: "Email or Student ID already in use" });
+    }
+
     const updatedMember = await Member.findByIdAndUpdate(
       id,
       {
@@ -98,8 +111,8 @@ exports.updateMember = async (req, res) => {
         isActive,
         phoneNumber,
       },
-      { new: true, runValidators: true } // Return the updated document
-    ).select("-password"); // Exclude password field
+      { new: true, runValidators: true }
+    );
 
     if (!updatedMember) {
       return res.status(404).json({ message: "Member not found" });

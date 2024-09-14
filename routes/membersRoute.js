@@ -8,12 +8,13 @@ const {
   updateMember,
   deleteMember,
 } = require("../controllers/memberController");
+const authenticateToken = require("../middlewares/verifyToken");
+const authenticateAdmin = require("../middlewares/authenticateAdmin");
 
-router.get("/", getAllMembers);
-router.post("/", addMember);
-router.get("/:id", getMember);
-router.put("/:id", updateMember);
-router.delete("/:id", deleteMember);
+router.get("/", authenticateAdmin, getAllMembers);
+router.post("/", authenticateAdmin, addMember);
+router.get("/:id", authenticateToken, authenticateAdmin, getMember);
+router.put("/:id", authenticateAdmin, updateMember);
+router.delete("/:id", authenticateAdmin, deleteMember);
 
 module.exports = router;
-
