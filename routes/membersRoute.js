@@ -11,7 +11,7 @@ const {
 const authenticateToken = require("../middlewares/verifyToken");
 const authenticateAdmin = require("../middlewares/authenticateAdmin");
 
-router.get("/", authenticateAdmin, getAllMembers);
+router.get("/", authenticateToken, getAllMembers);
 router.post("/", authenticateAdmin, addMember);
 router.get("/:id", authenticateToken, authenticateAdmin, getMember);
 router.put("/:id", authenticateAdmin, updateMember);

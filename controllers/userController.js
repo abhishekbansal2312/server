@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const mongoose = require("mongoose");
 
 // Get all users
 exports.allUsers = async (req, res) => {
@@ -15,6 +16,10 @@ exports.allUsers = async (req, res) => {
 // Get a single user by ID
 exports.singleUser = async (req, res) => {
   const { id } = req.params;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid user ID format" });
+  }
 
   try {
     const user = await User.findById(id);
@@ -57,6 +62,10 @@ exports.updateUser = async (req, res) => {
   const { id } = req.params;
   const { studentId, name, email, password } = req.body;
 
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid user ID format" });
+  }
+
   try {
     const user = await User.findByIdAndUpdate(
       id,
@@ -78,6 +87,10 @@ exports.updateUser = async (req, res) => {
 exports.deleteUser = async (req, res) => {
   const { id } = req.params;
 
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid user ID format" });
+  }
+
   try {
     const user = await User.findByIdAndDelete(id);
     if (!user) {
@@ -91,18 +104,26 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
-
 exports.getParticipatedEvents = async (req, res) => {
   const { id } = req.params;
 
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ message: "Invalid user ID format" });
+  }
+
   try {
-    const user = await User.findById(id).populate('participatedEvents');
+    const user = await User.findById(id).populate("participatedEvents");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
     res.status(200).json(user.participatedEvents);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching participated events", error: error.message });
+    res
+      .status(500)
+      .json({
+        message: "Error fetching participated events",
+        error: error.message,
+      });
   }
 };

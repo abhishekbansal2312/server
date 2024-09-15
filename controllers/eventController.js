@@ -1,10 +1,14 @@
 const Event = require("../models/Event");
 const mongoose = require("mongoose");
+const User = require("../models/User");
 
 // Get all events
 exports.getAllEvents = async (req, res) => {
   try {
-    const events = await Event.find();
+    const events = await Event.find().populate(
+      "participants",
+      "name studentId email"
+    );
     res.status(200).json(events);
   } catch (error) {
     res
@@ -48,7 +52,10 @@ exports.getEvent = async (req, res) => {
   }
 
   try {
-    const event = await Event.findById(id);
+    const event = await Event.findById(id).populate(
+      "participants",
+      "name studentId email"
+    );
     if (!event) {
       return res.status(404).json({ message: "Event not found" });
     }
@@ -100,5 +107,45 @@ exports.deleteEvent = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error deleting event", error: error.message });
+  }
+};
+
+// Add participants by student IDs
+exports.addParticipants = async (req, res) => {
+  const { eventId } = req.params;
+  const { studentIds } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(eventId)) {
+    return res.status(400).json({ message: "Invalid event ID" });
+  }
+
+  try {
+    const idsArray = studentIds.split(",").map((id) => id.trim());
+    const users = await User.find({ studentId: { $in: idsArray } });
+
+    if (!users.length) {
+      return res
+        .status(404)
+        .json({ message: "No valid users found for the provided IDs" });
+    }
+
+    // Add users' ObjectId to event's participants
+    const event = await Event.findByIdAndUpdate(
+      eventId,
+      { $addToSet: { participants: users.map((user) => user._id) } },
+      { new: true }
+    ).populate("participants", "name studentId email");
+
+    // Update the participatedEvents array for each user
+    await User.updateMany(
+      { _id: { $in: users.map((user) => user._id) } },
+      { $addToSet: { participatedEvents: eventId } }
+    );
+
+    res.status(200).json({ message: "Participants added successfully", event });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error adding participants", error: error.message });
   }
 };
